@@ -1,0 +1,38 @@
+# Hibernate and JPA Settings
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: false # enable with logger
+        format_sql: false # 'true' for dev purpose
+        hbm2ddl:
+          auto: none
+        ejb:
+          naming_strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        temp:
+          use_jdbc_metadata_defaults: false #Disabling contextual LOB creation error
+        bytecode:
+          use_reflection_optimizer: false
+# Primary DataSource config
+datasource:
+  primary:
+    type: com.zaxxer.hikari.HikariDataSource
+    jdbc-url: jdbc:mysql://localhost:3306/jpa-querydsl
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    destroy-method: shutdown
+    connection-test-query: SELECT 1
+    poolName: PrimaryDataSourceJPAHikariCP
+    connection-timeout: 30000
+    minimumIdle: 5
+    maximum-pool-size: 10
+    idleTimeout: 30000
+    maxLifetime: 2000000
+    useServerPrepStmts: true
+    cachePrepStmts: true
+    prepStmtCacheSize: 250
+    prepStmtCacheSqlLimit: 2048
+    useUnicode: true
+    characterEncoding: utf-8

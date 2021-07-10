@@ -1,0 +1,116 @@
+DROP TABLE IF EXISTS mjr_order_detail;
+DROP TABLE IF EXISTS mjr_order;
+DROP TABLE IF EXISTS mjr_customer;
+DROP TABLE IF EXISTS mjr_contact_info;
+DROP TABLE IF EXISTS mjr_product_x_thumbnail;
+DROP TABLE IF EXISTS mjr_product;
+DROP TABLE IF EXISTS mjr_thumbnail;
+
+CREATE TABLE mjr_contact_info
+(
+   id SERIAL,
+   contact_phone VARCHAR (30) NOT NULL,
+   contact_email VARCHAR(100) NOT NULL,
+   country VARCHAR(100) NOT NULL,
+   city VARCHAR(150) NOT NULL,
+   postal_code VARCHAR(100) NOT NULL,
+   address TINYTEXT,
+   record_reg_id BIGINT NOT NULL,
+   record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+   record_upd_id BIGINT NOT NULL,
+   record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+   CONSTRAINT pk_mjr_contact_info PRIMARY KEY (id)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_customer
+(
+   id SERIAL,
+   customer_name VARCHAR (100) NOT NULL,
+   email VARCHAR(100) NOT NULL UNIQUE,
+   password VARCHAR(200) NOT NULL,
+   balance DECIMAL(16,2) DEFAULT 0.00 NOT NULL,
+   status SMALLINT DEFAULT 0 NOT NULL,
+   contact_info_id BIGINT UNSIGNED NOT NULL,
+   record_reg_id BIGINT NOT NULL,
+   record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+   record_upd_id BIGINT NOT NULL,
+   record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+   CONSTRAINT pk_mjr_customer PRIMARY KEY (id),
+   CONSTRAINT fk_mjr_customer_contact_info FOREIGN KEY (contact_info_id) REFERENCES mjr_contact_info (id) ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_product
+(
+   id SERIAL,
+   product_code CHAR(36) NOT NULL,
+   product_name VARCHAR(200) NOT NULL,
+   category VARCHAR(50) NOT NULL,
+   current_price DECIMAL(16,2) NOT NULL,
+   status SMALLINT DEFAULT 0 NOT NULL,
+   description TEXT NOT NULL,
+   record_reg_id BIGINT NOT NULL,
+   record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+   record_upd_id BIGINT NOT NULL,
+   record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+   CONSTRAINT pk_mjr_product PRIMARY KEY (id)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_thumbnail
+(
+	id SERIAL,
+	original_name VARCHAR(255) NOT NULL,
+	file_name VARCHAR(150) NOT NULL UNIQUE,
+	file_path TEXT NOT NULL,
+	file_size VARCHAR(20) NOT NULL,
+	thumbnail_order INT DEFAULT 0 NOT NULL,
+    record_reg_id BIGINT NOT NULL,
+    record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    record_upd_id BIGINT NOT NULL,
+    record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT pk_mjr_thumbnail PRIMARY KEY (id)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_product_x_thumbnail
+(
+	product_id BIGINT UNSIGNED NOT NULL,
+	thumbnail_id BIGINT UNSIGNED NOT NULL,
+    record_reg_id BIGINT NOT NULL,
+    record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    record_upd_id BIGINT NOT NULL,
+    record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT pk_mjr_product_x_thumbnail PRIMARY KEY (product_id,thumbnail_id),
+    CONSTRAINT fk_mjr_product_x_thumbnail_product FOREIGN KEY (product_id) REFERENCES mjr_product (id) ON DELETE CASCADE,
+    CONSTRAINT fk_mjr_product_x_thumbnail_thumbnail FOREIGN KEY (thumbnail_id) REFERENCES mjr_thumbnail (id) ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_order
+(
+   id SERIAL,
+   order_number CHAR(36) NOT NULL UNIQUE,
+   customer_id BIGINT UNSIGNED NOT NULL,
+   order_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+   status SMALLINT DEFAULT 0 NOT NULL,
+   remark TINYTEXT,
+   record_reg_id BIGINT NOT NULL,
+   record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+   record_upd_id BIGINT NOT NULL,
+   record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+   CONSTRAINT pk_mjr_order PRIMARY KEY (id),
+   CONSTRAINT fk_mjr_order_customer FOREIGN KEY (customer_id) REFERENCES mjr_customer (id) ON DELETE RESTRICT
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+CREATE TABLE mjr_order_detail
+(
+	id SERIAL,
+	order_id BIGINT UNSIGNED NOT NULL,
+	product_id BIGINT UNSIGNED NOT NULL,
+	quantity INT NOT NULL,
+	order_price DECIMAL(16,2) NOT NULL,
+    record_reg_id BIGINT NOT NULL,
+    record_reg_date DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    record_upd_id BIGINT NOT NULL,
+    record_upd_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+	CONSTRAINT pk_mjr_order_detail PRIMARY KEY (id),
+	CONSTRAINT fk_mjr_order_detail_order FOREIGN KEY (order_id) REFERENCES mjr_order (id) ON DELETE RESTRICT,
+	CONSTRAINT fk_mjr_order_detail_product FOREIGN KEY (product_id) REFERENCES mjr_product (id) ON DELETE RESTRICT
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
